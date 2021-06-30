@@ -1,11 +1,11 @@
 package com.company;
 
-import java.time.LocalDate;
+import java.time.LocalTime;
 
 public class Zadanie extends Zdarzenie{
     private String priorytet;
 
-    public Zadanie(LocalDate start, LocalDate koniec, String opis, String priorytet){
+    public Zadanie(LocalTime start, LocalTime koniec, String opis, String priorytet){
         super(start, koniec, opis);
         this.priorytet = priorytet;
     }
@@ -17,4 +17,5 @@ public class Zadanie extends Zdarzenie{
     public void setPriorytet(String priorytet) {
         this.priorytet = priorytet;
     }
+
 }
