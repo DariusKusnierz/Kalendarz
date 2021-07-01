@@ -43,7 +43,6 @@ public abstract class Zdarzenie {
 
     @Override
     public String toString() {
-        return "Czas trwania: " + czas_poczatku + " - " + czas_zakonczenia + '\'' +
-                "\t Opis: " + opis + '\'';
+        return "Czas trwania: " + czas_poczatku + " - " + czas_zakonczenia + "\t Opis: \"" + opis + "\"";
     }
 }

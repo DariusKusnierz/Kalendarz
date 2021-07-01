@@ -17,4 +17,9 @@ public class Spotkanie extends Zdarzenie {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + "\t Status: " + status;
+    }
 }

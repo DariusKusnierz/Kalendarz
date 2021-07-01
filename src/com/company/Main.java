@@ -1,16 +1,21 @@
 package com.company;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.function.Predicate;
 
 public class Main {
-    public static void main(String[] args){
+    public static void main(String[] args) throws IOException {
         Scanner skan = new Scanner(System.in);
         Kalendarz kalendarz = new Kalendarz();
         boolean dzialanieProgramu = true;
-        ArrayList<Zdarzenie> zdarzenia;
+
+        przygotowaniePlikow();
+        odczytajPlik(kalendarz);
 
         do{
             System.out.println("Wybierz opcję: ");
@@ -33,9 +38,20 @@ public class Main {
                 case 5: usunZadanie(kalendarz); break;
                 case 6: usunSpotkanie(kalendarz); break;
                 case 0: dzialanieProgramu = false; break;
+                default: break;
             }
 
         }while(dzialanieProgramu);
+    }
+
+    private static void przygotowaniePlikow()  throws IOException {
+        File folder = new File("tydzien");
+        folder.mkdir();
+
+        for(int i=1; i<=7;i++){
+            File plik = new File ("tydzien\\"+i+".txt");
+            plik.createNewFile();
+        }
     }
 
     public static void noweZadanie(Kalendarz kalendarz){
@@ -63,6 +79,7 @@ public class Main {
         priorytet = skan.next();
 
         kalendarz.dodajZadanie(start,koniec,opis,priorytet,dzien);
+        zapiszKalendarz(kalendarz);
     }
 
     public static void noweSpotkanie(Kalendarz kalendarz){
@@ -89,7 +106,8 @@ public class Main {
         System.out.print("Status: ");
         status = skan.next();
 
-        kalendarz.dodajZadanie(start,koniec,opis,status,dzien);
+        kalendarz.dodajSpotkanie(start,koniec,opis,status,dzien);
+        zapiszKalendarz(kalendarz);
     }
 
     public static  void wyswietlZadanie(Kalendarz kalendarz){
@@ -139,7 +157,55 @@ public class Main {
     private static void wyswietl(ArrayList<Zdarzenie> zdarzenia, Predicate<Zdarzenie> parametr){
         for(Zdarzenie zdarzenie: zdarzenia){
             if(parametr.test(zdarzenie)){
-                System.out.println("Nr: "+zdarzenia.indexOf(zdarzenie)+"\n"+zdarzenie);
+                System.out.println("Nr: "+zdarzenia.indexOf(zdarzenie)+" "+zdarzenie);
+            }
+        }
+    }
+
+    private static void zapiszKalendarz(Kalendarz kalendarz){
+        for(int i=1; i<=7; i++){
+            zapiszPlik(kalendarz.wyswietl(i),i);
+        }
+    }
+
+    private static void zapiszPlik(ArrayList<Zdarzenie> zdarzenia, int dzien){
+        try {
+            FileWriter plik = new FileWriter("tydzien\\"+dzien+".txt");
+            for (Zdarzenie zdarzenie: zdarzenia){
+                plik.write("Nr: "+zdarzenia.indexOf(zdarzenie)+" "+zdarzenie+"\n");
+            }
+            plik.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void odczytajPlik(Kalendarz kalendarz){
+        for(int dzien=1 ;dzien<=7; dzien++){
+            try {
+                File plik = new File("tydzien\\"+dzien+".txt");
+                Scanner czytnik = new Scanner(plik);
+                String dane;
+                LocalTime start, koniec;
+                String opis, dodatkowaInformacja;
+                int pozycjaKoncaOpisu;
+
+                while(czytnik.hasNextLine()){
+                    dane = czytnik.nextLine();
+                    start = LocalTime.parse(dane.substring(20,25));
+                    koniec = LocalTime.parse(dane.substring(28,33));
+                    dodatkowaInformacja = dane.substring(dane.lastIndexOf(": ")+2);
+                    pozycjaKoncaOpisu = dane.lastIndexOf("\"");
+                    opis = dane.substring(42,pozycjaKoncaOpisu);
+
+                    if(!dane.contains("Priorytet: ")){
+                        kalendarz.dodajSpotkanie(start,koniec,opis,dodatkowaInformacja,dzien);
+                    }else{
+                        kalendarz.dodajZadanie(start,koniec,opis,dodatkowaInformacja,dzien);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }

@@ -18,4 +18,8 @@ public class Zadanie extends Zdarzenie{
         this.priorytet = priorytet;
     }
 
+    @Override
+    public String toString() {
+        return super.toString() + "\t Priorytet: " + priorytet;
+    }
 }
