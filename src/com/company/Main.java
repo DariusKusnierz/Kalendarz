@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.function.Predicate;
 
@@ -16,7 +18,8 @@ public class Main {
 
         przygotowaniePlikow();
         odczytajPlik(kalendarz);
-
+        System.out.println("\nKalendarz tygodniowy ");
+        System.out.println("=====================");
         do{
             System.out.println("Wybierz opcję: ");
             System.out.println("1. Nowe zadanie");
@@ -29,6 +32,7 @@ public class Main {
 
             System.out.print("Wybieram: ");
             int opcja = skan.nextInt();
+            System.out.println();
 
             switch (opcja){
                 case 1: noweZadanie(kalendarz); break;
@@ -40,7 +44,6 @@ public class Main {
                 case 0: dzialanieProgramu = false; break;
                 default: break;
             }
-
         }while(dzialanieProgramu);
     }
 
@@ -56,56 +59,84 @@ public class Main {
 
     public static void noweZadanie(Kalendarz kalendarz){
         Scanner skan = new Scanner(System.in);
-        LocalTime start, koniec;
-        int dzien;
+        LocalTime start = LocalTime.of(0,0);
+        LocalTime koniec = LocalTime.of(0,0);
+        int dzien = 0;
         String opis, priorytet;
+        boolean czasPracy = true;
 
-        System.out.println("Dodawanie nowego zadania");
+        System.out.println("\nDodawanie nowego zadania");
         do {
-            System.out.print("Rozpoczęcie: ");
-            start = LocalTime.parse(skan.next());
+            if(!czasPracy) System.out.println("Dzień pracy rozpoczyna się o godzinie "+Zdarzenie.POCZATEK_PRACY);
+            try{
+                System.out.print("Godzina rozpoczęcia: ");
+                start = LocalTime.parse(skan.next());
+            }catch (DateTimeParseException e){ System.out.println("Wprowadzono złą godzinę!"); }
+            czasPracy = false;
         }while (start.compareTo(Zdarzenie.POCZATEK_PRACY)<0);
-
+        czasPracy = true;
         do {
-            System.out.print("Zakończenie: ");
-            koniec = LocalTime.parse(skan.next());
+            if(!czasPracy) System.out.println("Dzień pracy kończy się o godzinie "+Zdarzenie.KONIEC_PRACY);
+            try{
+                System.out.print("Godzina zakończenia: ");
+                koniec = LocalTime.parse(skan.next());
+            }catch (DateTimeParseException e){ System.out.println("Wprowadzono złą godzinę!");}
+            czasPracy = false;
         }while (koniec.compareTo(Zdarzenie.KONIEC_PRACY)>0);
+        do{
+            Scanner skanDnia = new Scanner(System.in);
+            try{
+                System.out.print("Dzień tygodnia: ");
+                dzien = skanDnia.nextInt();
+            }catch (InputMismatchException e) { System.out.println("Wprowadzono zły dzień!");}
+        }while (dzien > 7 || dzien < 1 );
 
-        System.out.print("Dzień tygodnia: ");
-        dzien = skan.nextInt();
         System.out.print("Opis: ");
         opis = skan.next();
         System.out.print("Priorytet: ");
         priorytet = skan.next();
-
         kalendarz.dodajZadanie(start,koniec,opis,priorytet,dzien);
         zapiszKalendarz(kalendarz);
     }
 
     public static void noweSpotkanie(Kalendarz kalendarz){
         Scanner skan = new Scanner(System.in);
-        LocalTime start, koniec;
-        int dzien;
+        LocalTime start = LocalTime.of(0,0);
+        LocalTime koniec = LocalTime.of(0,0);
+        int dzien = 0;
         String opis, status;
+        boolean czasPracy = true;
 
-        System.out.println("Dodawanie nowego zadania");
+        System.out.println("Dodawanie nowego spotkania");
         do {
-            System.out.print("Rozpoczęcie: ");
-            start = LocalTime.parse(skan.next());
+            if(!czasPracy) System.out.println("Dzień pracy rozpoczyna się o godzinie "+Zdarzenie.POCZATEK_PRACY);
+            try{
+                System.out.print("Godzina rozpoczęcia: ");
+                start = LocalTime.parse(skan.next());
+            }catch (DateTimeParseException e){ System.out.println("Wprowadzono złą godzinę!"); }
+            czasPracy = false;
         }while (start.compareTo(Zdarzenie.POCZATEK_PRACY)<0);
-
+        czasPracy = true;
         do {
-            System.out.print("Zakończenie: ");
-            koniec = LocalTime.parse(skan.next());
+            if(!czasPracy) System.out.println("Dzień pracy kończy się o godzinie "+Zdarzenie.KONIEC_PRACY);
+            try{
+                System.out.print("Godzina zakończenia: ");
+                koniec = LocalTime.parse(skan.next());
+            }catch (DateTimeParseException e){ System.out.println("Wprowadzono złą godzinę!");}
+            czasPracy = false;
         }while (koniec.compareTo(Zdarzenie.KONIEC_PRACY)>0);
+        do{
+            Scanner skanDnia = new Scanner(System.in);
+            try{
+                System.out.print("Dzień tygodnia: ");
+                dzien = skanDnia.nextInt();
+            }catch (InputMismatchException e) { System.out.println("Wprowadzono zły dzień!");}
+        }while (dzien > 7 || dzien < 1 );
 
-        System.out.print("Dzień tygodnia: ");
-        dzien = skan.nextInt();
         System.out.print("Opis: ");
         opis = skan.next();
         System.out.print("Status: ");
         status = skan.next();
-
         kalendarz.dodajSpotkanie(start,koniec,opis,status,dzien);
         zapiszKalendarz(kalendarz);
     }
@@ -181,7 +212,7 @@ public class Main {
     }
 
     private static void odczytajPlik(Kalendarz kalendarz){
-        for(int dzien=1 ;dzien<=7; dzien++){
+        for(int dzien=1 ; dzien<=7; dzien++){
             try {
                 File plik = new File("tydzien\\"+dzien+".txt");
                 Scanner czytnik = new Scanner(plik);
